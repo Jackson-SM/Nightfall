@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace ChatClient
 {
@@ -26,6 +27,9 @@ namespace ChatClient
             // Sending name to server
             clientSocket.Send(clientNameBytes);
 
+            Thread receiveMessage = new Thread(() => ReceiveMessage(clientSocket));
+            receiveMessage.Start();
+            
             while (true)
             {
                 // Send datas
@@ -35,6 +39,25 @@ namespace ChatClient
                     break;
                 byte[] messageBytes = Encoding.UTF8.GetBytes(message);
                 clientSocket.Send(messageBytes);
+            }
+        }
+
+        private static void ReceiveMessage(Socket clientSocket)
+        {
+            while (true)
+            {
+                try
+                {
+                    byte[] buffer = new byte[1024];
+                    int messageBuffer = clientSocket.Receive(buffer);
+                    string messageFromOtherClientsByServer = Encoding.UTF8.GetString(buffer, 0, messageBuffer);
+
+                    Console.WriteLine(messageFromOtherClientsByServer);
+                }
+                catch (SocketException)
+                {
+                    Console.WriteLine("It's not possible to receive messages.");
+                }
             }
         }
     }

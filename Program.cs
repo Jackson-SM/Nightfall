@@ -44,7 +44,9 @@ namespace ChatServer
                 byte[] buffer = new byte[1024];
                 int message = clientSocket.Receive(buffer);
                 clientName = Encoding.UTF8.GetString(buffer, 0, message);
-                Console.WriteLine($"{clientName} Connected.");
+                string connectedMessage = ($"{clientName} Connected.");
+                Console.WriteLine(connectedMessage);
+                BroadcastMessage(connectedMessage, clientSocket);
 
                 while (true)
                 {
@@ -67,7 +69,7 @@ namespace ChatServer
             clientSocket.Close();
         }
 
-        static void BroadcastMessage(string message, Socket excludeSocket)
+        private static void BroadcastMessage(string message, Socket excludeSocket)
         {
             byte[] messageBytes = Encoding.UTF8.GetBytes(message);
 
